@@ -366,12 +366,16 @@ class MemoryManager:
             ):
                 self._save_summary_state()
 
-        summary_message = {
-            "role": "system",
-            "content": f"Previous Summary: {self.summary or '[none]'}",
-        }
+        summary_message = None
+        if self.summary:
+            summary_message = {
+                "role": "system",
+                "content": f"Previous Summary: {self.summary}"
+            }
 
-        return [system_message, summary_message, *recent_history]
+        if summary_message:
+            return [system_message, summary_message, *recent_history]
+        return [system_message, *recent_history]
 
     def clear_memory(self) -> None:
         """Clear history and summary state."""

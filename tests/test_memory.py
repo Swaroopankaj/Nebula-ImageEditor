@@ -45,10 +45,29 @@ def test_context_window_with_summary_buffer(tmp_path):
     assert window[-1]["content"] == "msg 3"
 
 
-def test_non_markdown_memory_file_results_in_empty_history(tmp_path):
-    memory_file = tmp_path / "memory.md"
-    summary_file = tmp_path / "summary.md"
-    memory_file.write_text('{"role":"user","content":"legacy"}', encoding="utf-8")
+def test_context_window_skips_empty_summary_message(tmp_path):
+    memory_file = tmp_path / "memory.json"
+    manager = MemoryManager(memory_file=str(memory_file))
+
+    for i in range(3):
+        manager.add_entry("user", f"msg {i}")
+
+    def summarizer(_old_msgs, _prev_summary):
+        return ""
+
+    window = manager.get_context_window("SYS", max_messages=1, summarizer=summarizer)
+
+    assert window[0]["role"] == "system"
+    assert window[0]["content"] == "SYS"
+    assert len(window) == 2  # system prompt + 1 recent message
+    assert manager.summary == ""
+
+
+def test_loads_legacy_memory_format(tmp_path):
+    legacy_file = tmp_path / "legacy.json"
+    legacy_payload = [{"role": "user", "content": "legacy hi", "metadata": {}}]
+    with open(legacy_file, "w", encoding="utf-8") as f:
+        json.dump(legacy_payload, f)
 
     manager = MemoryManager(
         memory_file=str(memory_file),
