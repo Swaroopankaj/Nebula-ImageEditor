@@ -188,7 +188,7 @@ Ejemplo de `full` mode:
 python skills/agent-repo-init/scripts/init_project.py \
   --project-name my-new-agent \
   --destination-root /absolute/path/for/new/projects \
-  --mode full --llm-provider openai --enable-mcp --disable-swarm --enable-docker --init-git
+  --mode full --llm-provider openai --enable-mcp --disable-swarm --sandbox-runtime microsandbox --init-git
 ```
 
 ## 🔌 Integración de MCP
@@ -235,6 +235,12 @@ El swarm automáticamente:
 
 ## 🆕 Actualizaciones recientes
 
+- 2026-03-02: Migración del runtime de sandbox de Docker a Microsandbox.
+- Nuevo backend `microsandbox` con `SANDBOX_TYPE=microsandbox` (el valor por defecto sigue siendo `local`).
+- Eliminada la implementación de runtime Docker y su suite de pruebas de sandbox.
+- Actualizadas variables/configuración de sandbox a `MSB_SERVER_URL`, `MSB_API_KEY`, `MSB_IMAGE`, `MSB_CPU_LIMIT`, `MSB_MEMORY_MB`.
+- Cambio incompatible: `agent-repo-init` reemplaza `enable_docker` por `sandbox_runtime` (`local` | `microsandbox`).
+- El script de inicialización ahora usa `--sandbox-runtime microsandbox` (en lugar de `--enable-docker`).
 - Añadido **Pensamiento Real (True Thinking)**: El agente realiza un paso real de "Deep Think" (CoT) antes de cada acción, generando un plan estructurado.
 - Añadido **Sistema de Habilidades (Skills System)**: Nuevo directorio `src/skills/` permite capacidades modulares basadas en carpetas (Docs + Código).
 - Añadida **skill agent-repo-init**: Inicializa un repositorio limpio y reutilizable desde esta plantilla con `init_agent_repo`.

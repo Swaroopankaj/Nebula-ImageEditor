@@ -26,6 +26,13 @@ class LlmProvider(str, Enum):
     OPENAI = "openai"
 
 
+class SandboxRuntime(str, Enum):
+    """Sandbox runtime preference for generated project defaults."""
+
+    LOCAL = "local"
+    MICROSANDBOX = "microsandbox"
+
+
 class RepoInitOptions(BaseModel):
     """Options for initializing a new project from template.
 
@@ -36,7 +43,7 @@ class RepoInitOptions(BaseModel):
         llm_provider: Preferred LLM provider profile for full mode.
         enable_mcp: Whether MCP should be enabled in generated `.env` for full mode.
         enable_swarm: Whether swarm workflow should be recommended in generated context.
-        enable_docker: Whether sandbox mode should default to docker in full mode.
+        sandbox_runtime: Sandbox runtime preference for full mode.
         init_git: Whether to run `git init` in destination project.
     """
 
@@ -46,7 +53,7 @@ class RepoInitOptions(BaseModel):
     llm_provider: LlmProvider = Field(default=LlmProvider.GEMINI)
     enable_mcp: bool = Field(default=False)
     enable_swarm: bool = Field(default=True)
-    enable_docker: bool = Field(default=False)
+    sandbox_runtime: SandboxRuntime = Field(default=SandboxRuntime.LOCAL)
     init_git: bool = Field(default=False)
 
     @field_validator("project_name")
@@ -180,7 +187,7 @@ def _configure_env_file(target_path: Path, options: RepoInitOptions) -> None:
     lines = _upsert_env_var(
         lines,
         "SANDBOX_TYPE",
-        "docker" if options.enable_docker else "local",
+        options.sandbox_runtime.value,
     )
     lines = _upsert_env_var(lines, "AGENT_NAME", options.project_name)
 
@@ -214,7 +221,7 @@ def _write_mission_file(target_path: Path, options: RepoInitOptions) -> None:
         f"- LLM Provider: {options.llm_provider.value}\n"
         f"- MCP Enabled: {options.enable_mcp}\n"
         f"- Swarm Preferred: {options.enable_swarm}\n"
-        f"- Docker Sandbox: {options.enable_docker}\n"
+        f"- Sandbox Runtime: {options.sandbox_runtime.value}\n"
     )
     (target_path / "mission.md").write_text(mission_content, encoding="utf-8")
 
@@ -235,7 +242,7 @@ def _write_runtime_profile(target_path: Path, options: RepoInitOptions) -> None:
         f"- Preferred LLM provider: `{options.llm_provider.value}`\n"
         f"- MCP enabled by default: `{options.enable_mcp}`\n"
         f"- Swarm workflow preference: `{options.enable_swarm}`\n"
-        f"- Default sandbox mode: `{'docker' if options.enable_docker else 'local'}`\n"
+        f"- Default sandbox mode: `{options.sandbox_runtime.value}`\n"
     )
     profile_path.write_text(content, encoding="utf-8")
 
@@ -257,7 +264,7 @@ def _write_init_report(target_path: Path, options: RepoInitOptions) -> None:
         f"- LLM Provider: `{options.llm_provider.value}`\n"
         f"- MCP Enabled: `{options.enable_mcp}`\n"
         f"- Swarm Preferred: `{options.enable_swarm}`\n"
-        f"- Docker Sandbox: `{options.enable_docker}`\n"
+        f"- Sandbox Runtime: `{options.sandbox_runtime.value}`\n"
         f"- Git Initialized: `{options.init_git}`\n"
     )
     report_path.write_text(content, encoding="utf-8")

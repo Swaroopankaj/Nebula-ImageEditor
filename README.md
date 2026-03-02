@@ -144,15 +144,16 @@ This is **not** another LangChain wrapper. It's a minimal, transparent workspace
 
 The sandbox lets the agent execute generated Python code safely and consistently. It defaults to a local subprocess with isolation and limits.
 
-- `SANDBOX_TYPE`: `local` (default) | `docker` (opt-in) | `e2b` (future)
+- `SANDBOX_TYPE`: `local` (default) | `microsandbox` (opt-in) | `e2b` (future)
 - `SANDBOX_TIMEOUT_SEC`: maximum execution time in seconds (default `30`)
 - `SANDBOX_MAX_OUTPUT_KB`: truncate stdout/stderr to limit size (default `10`)
 
-Docker (opt-in) extra variables:
-- `DOCKER_IMAGE` (default `python:3.11-slim`)
-- `DOCKER_NETWORK_ENABLED` (`false` by default)
-- `DOCKER_CPU_LIMIT` (default `0.5` cores)
-- `DOCKER_MEMORY_LIMIT` (default `256m`)
+Microsandbox (opt-in) extra variables:
+- `MSB_SERVER_URL` (default `http://127.0.0.1:5555`)
+- `MSB_API_KEY` (optional)
+- `MSB_IMAGE` (default `microsandbox/python`)
+- `MSB_CPU_LIMIT` (default `1.0`)
+- `MSB_MEMORY_MB` (default `512`)
 
 Example:
 
@@ -160,12 +161,11 @@ Example:
 export SANDBOX_TYPE=local
 export SANDBOX_TIMEOUT_SEC=30
 export SANDBOX_MAX_OUTPUT_KB=10
-# Docker mode
-# export SANDBOX_TYPE=docker
-# export DOCKER_IMAGE=python:3.11-slim
-# export DOCKER_NETWORK_ENABLED=false
-# export DOCKER_CPU_LIMIT=0.5
-# export DOCKER_MEMORY_LIMIT=256m
+# Microsandbox mode
+# msb server start --dev
+# export SANDBOX_TYPE=microsandbox
+# export MSB_SERVER_URL=http://127.0.0.1:5555
+# export MSB_IMAGE=microsandbox/python
 ```
 
 ## 🏗️ Project Structure
@@ -217,7 +217,7 @@ python skills/agent-repo-init/scripts/init_project.py \
 python skills/agent-repo-init/scripts/init_project.py \
   --project-name my-new-agent \
   --destination-root /absolute/path/for/new/projects \
-  --mode full --llm-provider openai --enable-mcp --disable-swarm --enable-docker --init-git
+  --mode full --llm-provider openai --enable-mcp --disable-swarm --sandbox-runtime microsandbox --init-git
 ```
 
 ## 🔌 MCP Integration
@@ -264,6 +264,12 @@ The swarm automatically:
 
 ## 🆕 Recent Updates
 
+- 2026-03-02: Migrated sandbox runtime from Docker to Microsandbox.
+- Added `microsandbox` backend with `SANDBOX_TYPE=microsandbox` (default remains `local`).
+- Removed Docker runtime implementation and Docker sandbox test suite.
+- Updated sandbox env/config keys to `MSB_SERVER_URL`, `MSB_API_KEY`, `MSB_IMAGE`, `MSB_CPU_LIMIT`, `MSB_MEMORY_MB`.
+- Breaking change: `agent-repo-init` replaced `enable_docker` with `sandbox_runtime` (`local` | `microsandbox`).
+- Updated init script usage to `--sandbox-runtime microsandbox` (replaces `--enable-docker`).
 - Added **True Thinking**: The agent now performs a real "Deep Think" step (Chain-of-Thought) before every action, generating a structured plan.
 - Added **Skills System**: New `src/skills/` directory allows for modular, folder-based agent capabilities (Docs + Code).
 - Added **agent-repo-init skill**: Initialize a clean, reusable repository from this template via `init_agent_repo`.

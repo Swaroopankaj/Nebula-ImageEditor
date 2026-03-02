@@ -14,6 +14,7 @@ from typing import Dict, List
 
 VALID_MODES = {"quick", "full"}
 VALID_LLM_PROVIDERS = {"gemini", "openai"}
+VALID_SANDBOX_RUNTIMES = {"local", "microsandbox"}
 
 
 def _is_within(child: Path, parent: Path) -> bool:
@@ -82,7 +83,7 @@ def _configure_env_file(
     mode: str,
     llm_provider: str,
     enable_mcp: bool,
-    enable_docker: bool,
+    sandbox_runtime: str,
 ) -> None:
     """Create/update env file.
 
@@ -92,7 +93,7 @@ def _configure_env_file(
         mode: Initialization mode.
         llm_provider: LLM provider profile.
         enable_mcp: MCP flag.
-        enable_docker: Docker sandbox flag.
+        sandbox_runtime: Sandbox runtime mode.
     """
 
     env_example = target_path / ".env.example"
@@ -109,7 +110,7 @@ def _configure_env_file(
 
     lines = env_file.read_text(encoding="utf-8").splitlines()
     lines = _upsert_env_var(lines, "MCP_ENABLED", "true" if enable_mcp else "false")
-    lines = _upsert_env_var(lines, "SANDBOX_TYPE", "docker" if enable_docker else "local")
+    lines = _upsert_env_var(lines, "SANDBOX_TYPE", sandbox_runtime)
     lines = _upsert_env_var(lines, "AGENT_NAME", project_name)
 
     if llm_provider == "openai":
@@ -128,7 +129,7 @@ def _write_full_mode_files(
     llm_provider: str,
     enable_mcp: bool,
     enable_swarm: bool,
-    enable_docker: bool,
+    sandbox_runtime: str,
     init_git: bool,
 ) -> None:
     """Write full-mode profile files.
@@ -140,7 +141,7 @@ def _write_full_mode_files(
         llm_provider: LLM provider profile.
         enable_mcp: MCP flag.
         enable_swarm: Swarm preference.
-        enable_docker: Docker sandbox flag.
+        sandbox_runtime: Sandbox runtime mode.
         init_git: Git init flag.
     """
 
@@ -157,7 +158,7 @@ def _write_full_mode_files(
         f"- LLM Provider: {llm_provider}\n"
         f"- MCP Enabled: {enable_mcp}\n"
         f"- Swarm Preferred: {enable_swarm}\n"
-        f"- Docker Sandbox: {enable_docker}\n"
+        f"- Sandbox Runtime: {sandbox_runtime}\n"
     )
     (target_path / "mission.md").write_text(mission_content, encoding="utf-8")
 
@@ -169,7 +170,7 @@ def _write_full_mode_files(
         f"- Preferred LLM provider: `{llm_provider}`\n"
         f"- MCP enabled by default: `{enable_mcp}`\n"
         f"- Swarm workflow preference: `{enable_swarm}`\n"
-        f"- Default sandbox mode: `{'docker' if enable_docker else 'local'}`\n"
+        f"- Default sandbox mode: `{sandbox_runtime}`\n"
     )
     profile_path.write_text(profile_content, encoding="utf-8")
 
@@ -182,7 +183,7 @@ def _write_full_mode_files(
         f"- LLM Provider: `{llm_provider}`\n"
         f"- MCP Enabled: `{enable_mcp}`\n"
         f"- Swarm Preferred: `{enable_swarm}`\n"
-        f"- Docker Sandbox: `{enable_docker}`\n"
+        f"- Sandbox Runtime: `{sandbox_runtime}`\n"
         f"- Git Initialized: `{init_git}`\n"
     )
     report_path.write_text(report_content, encoding="utf-8")
@@ -228,7 +229,11 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--enable-mcp", action="store_true")
     parser.add_argument("--disable-swarm", action="store_true")
-    parser.add_argument("--enable-docker", action="store_true")
+    parser.add_argument(
+        "--sandbox-runtime",
+        default="local",
+        choices=sorted(VALID_SANDBOX_RUNTIMES),
+    )
     parser.add_argument("--init-git", action="store_true")
     parser.add_argument(
         "--template-root",
@@ -295,7 +300,7 @@ def main() -> int:
         mode=args.mode,
         llm_provider=args.llm_provider,
         enable_mcp=args.enable_mcp,
-        enable_docker=args.enable_docker,
+        sandbox_runtime=args.sandbox_runtime,
     )
     _write_full_mode_files(
         target_path,
@@ -304,7 +309,7 @@ def main() -> int:
         llm_provider=args.llm_provider,
         enable_mcp=args.enable_mcp,
         enable_swarm=enable_swarm,
-        enable_docker=args.enable_docker,
+        sandbox_runtime=args.sandbox_runtime,
         init_git=args.init_git,
     )
 

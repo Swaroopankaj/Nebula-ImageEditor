@@ -6,18 +6,18 @@ from .local import LocalSandbox
 def get_sandbox() -> CodeSandbox:
     """Factory method to obtain the configured executor.
 
-    Supported types: local (default), docker (opt-in), e2b (future)
+    Supported types: local (default), microsandbox (opt-in), e2b (future)
     Falls back to local if the requested type module is unavailable.
     """
     mode = os.getenv("SANDBOX_TYPE", "local").lower()
 
-    if mode == "docker":
+    if mode == "microsandbox":
         try:
-            from .docker_exec import DockerSandbox  # type: ignore
+            from .microsandbox_exec import MicrosandboxSandbox  # type: ignore
 
-            return DockerSandbox()
+            return MicrosandboxSandbox()
         except Exception:
-            # If DockerSandbox module can't be imported, fallback to local
+            # If Microsandbox runtime module can't be imported, fallback to local
             return LocalSandbox()
 
     if mode == "e2b":

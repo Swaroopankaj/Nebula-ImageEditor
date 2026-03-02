@@ -188,7 +188,7 @@ python skills/agent-repo-init/scripts/init_project.py \
 python skills/agent-repo-init/scripts/init_project.py \
   --project-name my-new-agent \
   --destination-root /absolute/path/for/new/projects \
-  --mode full --llm-provider openai --enable-mcp --disable-swarm --enable-docker --init-git
+  --mode full --llm-provider openai --enable-mcp --disable-swarm --sandbox-runtime microsandbox --init-git
 ```
 
 ## 🔌 MCP 集成
@@ -237,6 +237,12 @@ Swarm 会自动：
 
 ## 🆕 最近更新
 
+- 2026-03-02：沙盒运行时从 Docker 迁移到 Microsandbox。
+- 新增 `microsandbox` 后端，可通过 `SANDBOX_TYPE=microsandbox` 启用（默认仍为 `local`）。
+- 移除 Docker 运行时实现与 Docker 沙盒测试套件。
+- 沙盒环境变量/配置键更新为 `MSB_SERVER_URL`、`MSB_API_KEY`、`MSB_IMAGE`、`MSB_CPU_LIMIT`、`MSB_MEMORY_MB`。
+- 破坏性变更：`agent-repo-init` 将 `enable_docker` 替换为 `sandbox_runtime`（`local` | `microsandbox`）。
+- 初始化脚本参数更新为 `--sandbox-runtime microsandbox`（替代 `--enable-docker`）。
 - 新增 **真实思考 (True Thinking)**：Agent 现在会在每次行动前执行真正的“深度思考”（CoT），生成结构化计划。
 - 新增 **技能系统 (Skills System)**：新的 `src/skills/` 目录支持基于文件夹的模块化能力（文档+代码）。
 - 新增 **agent-repo-init skill**：通过 `init_agent_repo` 可从该模板初始化一个可复用的干净仓库。

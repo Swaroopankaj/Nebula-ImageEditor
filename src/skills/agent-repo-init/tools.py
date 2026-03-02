@@ -4,6 +4,7 @@ from src.skills.agent_repo_init_core import (
     InitMode,
     LlmProvider,
     RepoInitOptions,
+    SandboxRuntime,
     initialize_agent_repo,
 )
 
@@ -15,7 +16,7 @@ def init_agent_repo(
     llm_provider: str = "gemini",
     enable_mcp: bool = False,
     enable_swarm: bool = True,
-    enable_docker: bool = False,
+    sandbox_runtime: str = "local",
     init_git: bool = False,
 ) -> dict[str, Any]:
     """Initialize a new project from the template in quick or full mode.
@@ -27,7 +28,7 @@ def init_agent_repo(
         llm_provider: LLM profile (`gemini` or `openai`) used in full mode.
         enable_mcp: Enable MCP defaults in full mode.
         enable_swarm: Enable swarm preference profile in full mode.
-        enable_docker: Set sandbox default to docker in full mode.
+        sandbox_runtime: Sandbox runtime (`local` or `microsandbox`) in full mode.
         init_git: Initialize git repository in the destination project.
 
     Returns:
@@ -45,7 +46,7 @@ def init_agent_repo(
         llm_provider=LlmProvider(llm_provider),
         enable_mcp=enable_mcp,
         enable_swarm=enable_swarm,
-        enable_docker=enable_docker,
+        sandbox_runtime=SandboxRuntime(sandbox_runtime),
         init_git=init_git,
     )
 

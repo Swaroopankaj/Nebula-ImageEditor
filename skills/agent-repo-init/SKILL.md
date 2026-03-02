@@ -31,7 +31,7 @@ python skills/agent-repo-init/scripts/init_project.py \
   --llm-provider openai \
   --enable-mcp \
   --disable-swarm \
-  --enable-docker \
+  --sandbox-runtime microsandbox \
   --init-git
 ```
 
