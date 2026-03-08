@@ -1,4 +1,4 @@
-# 🪐 Google Antigravity Workspace Template
+# 🪐Antigravity Workspace Template
 
 **Production-grade starter kit for autonomous AI agents on Google Antigravity.**
 
