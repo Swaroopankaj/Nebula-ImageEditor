@@ -86,3 +86,15 @@ export function resetSettings() {
     editorSettings.flipH = false;
     editorSettings.flipV = false;
 }
+
+export function updateSettings(newSettings) {
+    Object.assign(editorSettings, newSettings);
+}
+
+export function applyTheme(theme) {
+    if (theme === 'light') {
+        document.body.classList.add('light');
+    } else {
+        document.body.classList.remove('light');
+    }
+}

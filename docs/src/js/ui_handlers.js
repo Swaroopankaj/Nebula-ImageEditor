@@ -1,9 +1,14 @@
 import { brushTool } from './tools/brush.js';
 import { cropTool } from './tools/crop.js';
+import { marqueeTool } from './tools/select_marquee.js';
+import { redraw, processNewImage, handleReset, handleDownload, applyPreset } from './main.js';
+import { editorSettings, updateSettings, applyTheme } from './settings.js';
+import { initCanvas } from './canvas.js';
 
 let currentTool = 'select';
 
 export function initHandlers() {
+    initCanvas();
     const mainCanvas = document.getElementById('imageCanvas');
 
     // 1. Tool Switching (Left Toolbar)
@@ -14,8 +19,9 @@ export function initHandlers() {
             
             currentTool = btn.dataset.tool;
 
-            // Clear previous tool state
+            // Clear previous tool states
             cropTool.clear();
+            marqueeTool.clear();
 
             // Toggle Top Contextual Bar
             document.querySelectorAll('.tool-context').forEach(c => c.classList.add('hidden'));
@@ -25,56 +31,6 @@ export function initHandlers() {
             console.log(`Tool changed to: ${currentTool}`);
         });
     });
-
-    // 2. Panel Switching (Right Sidebar)
-    // ...
-    
-    // Canvas Interaction (Tools)
-    if (mainCanvas) {
-        mainCanvas.addEventListener('mousedown', (e) => {
-            if (currentTool === 'brush') {
-                brushTool.start(e, mainCanvas);
-            } else if (currentTool === 'crop') {
-                cropTool.start(e, mainCanvas);
-            }
-        });
-
-        window.addEventListener('mousemove', (e) => {
-            if (currentTool === 'brush') {
-                brushTool.draw(e, mainCanvas);
-            } else if (currentTool === 'crop') {
-                cropTool.move(e, mainCanvas);
-            }
-        });
-
-        window.addEventListener('mouseup', () => {
-            if (currentTool === 'brush') {
-                brushTool.stop();
-            } else if (currentTool === 'crop') {
-                cropTool.stop();
-            }
-        });
-    }
-
-    // Top Bar Actions
-    document.getElementById('confirmCrop')?.addEventListener('click', () => cropTool.apply());
-    document.getElementById('cancelCrop')?.addEventListener('click', () => cropTool.clear());
-
-    document.getElementById('aiSelectSubject')?.addEventListener('click', async () => {
-        const btn = document.getElementById('aiSelectSubject');
-        const originalText = btn.textContent;
-        btn.textContent = 'Analyzing...';
-        btn.classList.add('animate-pulse');
-
-        // This triggers the segmentation on the base layer
-        await updateSettings({ removeBackground: true });
-        await redraw();
-
-        btn.textContent = originalText;
-        btn.classList.remove('animate-pulse');
-        console.log('AI Subject Isolation Complete');
-    });
-    // ...
 
     // 2. Panel Switching (Right Sidebar)
     document.querySelectorAll('.panel-tab').forEach(tab => {
@@ -93,31 +49,63 @@ export function initHandlers() {
         mainCanvas.addEventListener('mousedown', (e) => {
             if (currentTool === 'brush') {
                 brushTool.start(e, mainCanvas);
+            } else if (currentTool === 'crop') {
+                cropTool.start(e, mainCanvas);
+            } else if (currentTool === 'marquee') {
+                marqueeTool.start(e, mainCanvas);
             }
         });
 
         window.addEventListener('mousemove', (e) => {
             if (currentTool === 'brush') {
                 brushTool.draw(e, mainCanvas);
+            } else if (currentTool === 'crop') {
+                cropTool.move(e, mainCanvas);
+            } else if (currentTool === 'marquee') {
+                marqueeTool.move(e, mainCanvas);
             }
         });
 
         window.addEventListener('mouseup', () => {
             if (currentTool === 'brush') {
                 brushTool.stop();
+            } else if (currentTool === 'crop') {
+                cropTool.stop();
+            } else if (currentTool === 'marquee') {
+                marqueeTool.stop();
             }
         });
     }
 
-    // Top Bar Brush Settings
+    // Top Bar Actions
+    document.getElementById('confirmCrop')?.addEventListener('click', () => cropTool.apply());
+    document.getElementById('cancelCrop')?.addEventListener('click', () => cropTool.clear());
+    
+    document.getElementById('marqueeCopyToLayer')?.addEventListener('click', () => marqueeTool.copyToNewLayer());
+    document.getElementById('marqueeClear')?.addEventListener('click', () => marqueeTool.clear());
+
+    document.getElementById('aiSelectSubject')?.addEventListener('click', async () => {
+        const btn = document.getElementById('aiSelectSubject');
+        const originalText = btn.textContent;
+        btn.textContent = 'Analyzing...';
+        btn.classList.add('animate-pulse');
+
+        // This triggers the segmentation on the base layer
+        await updateSettings({ removeBackground: true });
+        await redraw();
+
+        btn.textContent = originalText;
+        btn.classList.remove('animate-pulse');
+        console.log('AI Subject Isolation Complete');
+    });
+
+    // Brush Settings
     const brushSizeInput = document.querySelector('#tool-context-brush .brush-size-input');
     if (brushSizeInput) {
         brushSizeInput.addEventListener('input', (e) => {
             brushTool.size = parseInt(e.target.value);
             const valDisplay = document.getElementById('brushSizeValue');
-            if (valDisplay) {
-                valDisplay.textContent = e.target.value;
-            }
+            if (valDisplay) valDisplay.textContent = e.target.value;
         });
     }
 
@@ -126,27 +114,28 @@ export function initHandlers() {
         brushOpacityInput.addEventListener('input', (e) => {
             brushTool.opacity = parseFloat(e.target.value);
             const valDisplay = document.getElementById('brushOpacityValue');
-            if (valDisplay) {
-                valDisplay.textContent = e.target.value;
-            }
+            if (valDisplay) valDisplay.textContent = e.target.value;
         });
     }
 
-    // Curves Interaction Stub
-    const curvesContainer = document.getElementById('curves-container');
-    if (curvesContainer) {
-        curvesContainer.addEventListener('mousedown', (e) => {
-            console.log('Curves interaction started');
-        });
-    }
+    // File Upload / Sample
+    const hidePlaceholder = () => {
+        const placeholder = document.getElementById('placeholderText');
+        if (placeholder) placeholder.classList.add('hidden');
+    };
 
-    // File Upload
     document.getElementById('imageUpload')?.addEventListener('change', (e) => {
         if (e.target.files[0]) {
+            hidePlaceholder();
             const reader = new FileReader();
             reader.onload = (event) => processNewImage(event.target.result);
             reader.readAsDataURL(e.target.files[0]);
         }
+    });
+
+    document.getElementById('loadSampleButton')?.addEventListener('click', () => {
+        hidePlaceholder();
+        processNewImage('src/assets/showcase.png');
     });
 
     // Theme Toggle
@@ -237,12 +226,6 @@ export function initHandlers() {
 
     document.getElementById('rotate90Button')?.addEventListener('click', () => {
         editorSettings.rotation = (editorSettings.rotation + 90) % 360;
-        redraw();
-    });
-
-    document.getElementById('cropSquareButton')?.addEventListener('click', () => {
-        // Simple Square Crop Logic (Placeholder for future expansion)
-        alert('1:1 Crop applied (Visual center)');
         redraw();
     });
 

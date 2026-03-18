@@ -1,9 +1,16 @@
 import { brushTool } from './tools/brush.js';
 import { cropTool } from './tools/crop.js';
+import { marqueeTool } from './tools/select_marquee.js';
+import { redraw, processNewImage, handleReset, handleDownload, applyPreset } from './main.js';
+import { editorSettings, updateSettings, applyTheme } from './settings.js';
+import { initCanvas } from './canvas.js';
 
 let currentTool = 'select';
 
 export function initHandlers() {
+    alert('Nebula UI Handlers Initializing...');
+    console.log('initHandlers called');
+    initCanvas();
     const mainCanvas = document.getElementById('imageCanvas');
 
     // 1. Tool Switching (Left Toolbar)
@@ -14,8 +21,9 @@ export function initHandlers() {
             
             currentTool = btn.dataset.tool;
 
-            // Clear previous tool state
+            // Clear previous tool states
             cropTool.clear();
+            marqueeTool.clear();
 
             // Toggle Top Contextual Bar
             document.querySelectorAll('.tool-context').forEach(c => c.classList.add('hidden'));
@@ -36,6 +44,8 @@ export function initHandlers() {
                 brushTool.start(e, mainCanvas);
             } else if (currentTool === 'crop') {
                 cropTool.start(e, mainCanvas);
+            } else if (currentTool === 'marquee') {
+                marqueeTool.start(e, mainCanvas);
             }
         });
 
@@ -44,6 +54,8 @@ export function initHandlers() {
                 brushTool.draw(e, mainCanvas);
             } else if (currentTool === 'crop') {
                 cropTool.move(e, mainCanvas);
+            } else if (currentTool === 'marquee') {
+                marqueeTool.move(e, mainCanvas);
             }
         });
 
@@ -52,6 +64,8 @@ export function initHandlers() {
                 brushTool.stop();
             } else if (currentTool === 'crop') {
                 cropTool.stop();
+            } else if (currentTool === 'marquee') {
+                marqueeTool.stop();
             }
         });
     }
@@ -59,6 +73,9 @@ export function initHandlers() {
     // Top Bar Actions
     document.getElementById('confirmCrop')?.addEventListener('click', () => cropTool.apply());
     document.getElementById('cancelCrop')?.addEventListener('click', () => cropTool.clear());
+    
+    document.getElementById('marqueeCopyToLayer')?.addEventListener('click', () => marqueeTool.copyToNewLayer());
+    document.getElementById('marqueeClear')?.addEventListener('click', () => marqueeTool.clear());
 
     document.getElementById('aiSelectSubject')?.addEventListener('click', async () => {
         const btn = document.getElementById('aiSelectSubject');
@@ -88,28 +105,13 @@ export function initHandlers() {
         });
     });
 
-    // Canvas Interaction (Tools)
-    if (mainCanvas) {
-        mainCanvas.addEventListener('mousedown', (e) => {
-            if (currentTool === 'brush') {
-                brushTool.start(e, mainCanvas);
-            }
-        });
-
-        window.addEventListener('mousemove', (e) => {
-            if (currentTool === 'brush') {
-                brushTool.draw(e, mainCanvas);
-            }
-        });
-
-        window.addEventListener('mouseup', () => {
-            if (currentTool === 'brush') {
-                brushTool.stop();
-            }
+    // Curves Interaction Stub
+    const curvesContainer = document.getElementById('curves-container');
+    if (curvesContainer) {
+        curvesContainer.addEventListener('mousedown', (e) => {
+            console.log('Curves interaction started');
         });
     }
-
-    // Top Bar Brush Settings
     const brushSizeInput = document.querySelector('#tool-context-brush .brush-size-input');
     if (brushSizeInput) {
         brushSizeInput.addEventListener('input', (e) => {
@@ -133,20 +135,32 @@ export function initHandlers() {
     }
 
     // Curves Interaction Stub
-    const curvesContainer = document.getElementById('curves-container');
-    if (curvesContainer) {
-        curvesContainer.addEventListener('mousedown', (e) => {
-            console.log('Curves interaction started');
-        });
-    }
+    // ... (Already handled above)
 
-    // File Upload
+    // File Upload / Sample
+    const hidePlaceholder = () => {
+        const placeholder = document.getElementById('placeholderText');
+        if (placeholder) placeholder.classList.add('hidden');
+    };
+
     document.getElementById('imageUpload')?.addEventListener('change', (e) => {
         if (e.target.files[0]) {
+            hidePlaceholder();
             const reader = new FileReader();
             reader.onload = (event) => processNewImage(event.target.result);
             reader.readAsDataURL(e.target.files[0]);
         }
+    });
+
+    document.getElementById('loadSampleButton')?.addEventListener('click', () => {
+        console.log('Load Sample button clicked. Current time:', new Date().toLocaleTimeString());
+        hidePlaceholder();
+        const samplePath = 'src/assets/showcase.png?v=' + Date.now();
+        console.log('Requesting sample image:', samplePath);
+        processNewImage(samplePath).catch(err => {
+            console.error('Failed to load sample:', err);
+            alert('Error loading sample image. Check console for details.');
+        });
     });
 
     // Theme Toggle

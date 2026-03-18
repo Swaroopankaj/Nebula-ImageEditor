@@ -1,75 +1,86 @@
+import { drawImage as canvasDrawImage, redraw as canvasRedraw } from './canvas.js';
 import { editorSettings, PRESETS, resetSettings } from './settings.js';
-import { updateCanvasBackground } from './utils.js';
-import { loadSegmentationModel } from './ai.js';
-import { setupCanvas } from './canvas.js';
 
-// DOM Elements
-const elements = {
-    imageUpload: document.getElementById('imageUpload'),
-    canvasContainer: document.getElementById('canvasContainer'),
-    dragDropOverlay: document.getElementById('dragDropOverlay'),
-    imageCanvas: document.getElementById('imageCanvas'),
-    placeholderText: document.getElementById('placeholderText'),
-    loadingDiv: document.getElementById('loading'),
-    loadingMessage: document.getElementById('loadingMessage'),
-    loadingDetail: document.getElementById('loadingDetail'),
-    infoModal: document.getElementById('infoModal'),
-    darkModeToggle: document.getElementById('darkModeToggle'),
-    resetButton: document.getElementById('resetButton'),
-    downloadButton: document.getElementById('downloadButton')
-};
+// State variables
+let elements = null;
+let originalImage = null;
+let currentImage = null;
 
-// Application State
-let originalImage = new Image();
-let currentImage = new Image();
-let currentSegmentationMask = null;
-let segmentation = null;
+function getElements() {
+    if (!elements) {
+        elements = {
+            loadingDiv: document.getElementById('loading'),
+            loadingMessage: document.getElementById('loadingMessage'),
+            loadingDetail: document.getElementById('loadingDetail'),
+            placeholderText: document.getElementById('placeholderText'),
+            imageCanvas: document.getElementById('imageCanvas')
+        };
+    }
+    return elements;
+}
 
-const { drawImage } = setupCanvas(elements.imageCanvas, elements.canvasContainer);
+function getOriginalImage() {
+    if (!originalImage) originalImage = new Image();
+    return originalImage;
+}
+
+function getCurrentImage() {
+    if (!currentImage) currentImage = new Image();
+    return currentImage;
+}
 
 // Core Redraw Trigger
 export function redraw() {
-    drawImage(currentImage, editorSettings, currentSegmentationMask);
+    canvasRedraw();
 }
 
 // Global Image Processing Handler
 export async function processNewImage(src) {
-    elements.loadingDiv.classList.remove('hidden');
-    elements.loadingMessage.textContent = 'Preparing workspace...';
+    const el = getElements();
+    const orig = getOriginalImage();
+    const curr = getCurrentImage();
+
+    if (el.loadingDiv) {
+        el.loadingDiv.classList.remove('hidden');
+        el.loadingMessage.textContent = 'Preparing workspace...';
+    }
     
-    return new Promise((resolve) => {
-        originalImage.onload = async () => {
-            // resetSettings(); // Don't reset if we want to keep current adjustments on new image? 
-            // Actually, keep it for now for a fresh start.
-            resetSettings();
-            currentImage.src = originalImage.src;
-            
-            elements.imageCanvas.width = currentImage.naturalWidth;
-            elements.imageCanvas.height = currentImage.naturalHeight;
-
-            if (!segmentation) {
-                segmentation = await loadSegmentationModel(
-                    elements.loadingDiv, 
-                    elements.loadingMessage, 
-                    elements.loadingDetail,
-                    (results) => {
-                        currentSegmentationMask = results.segmentationMask;
-                        redraw();
+    return new Promise((resolve, reject) => {
+        orig.onload = async () => {
+            try {
+                resetSettings();
+                
+                curr.onload = async () => {
+                    try {
+                        await canvasDrawImage(curr);
+                        if (el.placeholderText) el.placeholderText.classList.add('hidden');
+                        if (el.loadingDiv) el.loadingDiv.classList.add('hidden');
+                        resolve();
+                    } catch (err) {
+                        console.error('Canvas draw error:', err);
+                        reject(err);
                     }
-                );
+                };
+                
+                curr.onerror = (err) => {
+                    console.error('Current image load error:', err);
+                    reject(err);
+                };
+                
+                curr.src = orig.src;
+            } catch (err) {
+                console.error('Processing error:', err);
+                reject(err);
             }
-
-            if (segmentation) {
-                elements.loadingMessage.textContent = 'AI Segmentation...';
-                await segmentation.send({ image: originalImage });
-            }
-            
-            elements.placeholderText.classList.add('hidden');
-            elements.loadingDiv.classList.add('hidden');
-            redraw();
-            resolve();
         };
-        originalImage.src = src;
+
+        orig.onerror = (err) => {
+            console.error('Original image load error:', err);
+            if (el.loadingDiv) el.loadingDiv.classList.add('hidden');
+            reject(err);
+        };
+
+        orig.src = src;
     });
 }
 
@@ -91,9 +102,11 @@ export function applyPreset(presetName) {
 }
 
 export function handleReset() {
-    if (!originalImage.src) return;
+    const orig = getOriginalImage();
+    const curr = getCurrentImage();
+    if (!orig.src) return;
     resetSettings();
-    currentImage.src = originalImage.src;
+    curr.src = orig.src;
     
     // Reset UI Sliders
     ['brightness', 'contrast', 'saturation', 'hue', 'globalBlur', 'opacity'].forEach(id => {
@@ -112,9 +125,11 @@ export function handleReset() {
 }
 
 export function handleDownload() {
-    if (!currentImage.src) return;
+    const curr = getCurrentImage();
+    const el = getElements();
+    if (!curr.src) return;
     const link = document.createElement('a');
     link.download = `nebula-${Date.now()}.png`;
-    link.href = elements.imageCanvas.toDataURL('image/png', 1.0);
+    link.href = el.imageCanvas.toDataURL('image/png', 1.0);
     link.click();
 }

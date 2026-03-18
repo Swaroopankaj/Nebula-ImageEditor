@@ -1,0 +1,14 @@
+{
+  "name": "nebula-image-editor",
+  "version": "2.0.0",
+  "description": "Professional Web Image Editor",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve .",
+    "dev": "npx serve ."
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "serve": "^14.2.1"
+  }
+}

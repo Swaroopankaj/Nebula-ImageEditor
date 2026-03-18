@@ -24,8 +24,8 @@ export async function drawImage(img) {
     // Set dimensions based on viewport
     const maxWidth = window.innerWidth * 0.7;
     const maxHeight = window.innerHeight * 0.7;
-    let width = img.width;
-    let height = img.height;
+    let width = img.naturalWidth || img.width;
+    let height = img.naturalHeight || img.height;
 
     const ratio = Math.min(maxWidth / width, maxHeight / height);
     width *= ratio;
@@ -33,6 +33,16 @@ export async function drawImage(img) {
 
     mainCanvas.width = width;
     mainCanvas.height = height;
+
+    // Sync interaction overlay dimensions
+    const overlay = document.getElementById('interactionOverlay');
+    if (overlay) {
+        overlay.style.width = `${width}px`;
+        overlay.style.height = `${height}px`;
+        overlay.style.left = '50%';
+        overlay.style.top = '50%';
+        overlay.style.transform = 'translate(-50%, -50%)';
+    }
 
     // Reset Layer Manager with Base Layer
     layerManager.layers = [];

@@ -24,8 +24,8 @@ export async function drawImage(img) {
     // Set dimensions based on viewport
     const maxWidth = window.innerWidth * 0.7;
     const maxHeight = window.innerHeight * 0.7;
-    let width = img.width;
-    let height = img.height;
+    let width = img.naturalWidth;
+    let height = img.naturalHeight;
 
     const ratio = Math.min(maxWidth / width, maxHeight / height);
     width *= ratio;
@@ -56,6 +56,7 @@ export async function redraw() {
     // 2. Process AI Effects on the base layer if enabled
     const baseLayer = layerManager.layers[0];
     if (editorSettings.removeBackground && baseLayer) {
+        // AI Segment will modify the base layer canvas
         await applyAISegmentation(baseLayer.canvas);
     }
 

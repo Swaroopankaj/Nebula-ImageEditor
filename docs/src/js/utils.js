@@ -8,5 +8,4 @@ export function applyTheme(theme) {
 
 export function updateCanvasBackground(canvas, isLight) {
     // This is now largely handled by CSS via the .checkerboard-bg class
-    // but we can keep it for any dynamic needs.
 }
