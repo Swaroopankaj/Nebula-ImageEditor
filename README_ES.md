@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="docs/assets/logo.png" alt="Antigravity" width="200"/>
+<img src="docs/assets/logo.png" alt="Antigravity Workspace" width="200"/>
 
-# Antigravity
+# AI Workspace Template
 
 **Haz que cualquier IDE de IA sea mas inteligente — en un comando.**
 
