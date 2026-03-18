@@ -39,53 +39,103 @@
             </div>
         </header>
 
-        <!-- Tool Navigation -->
-        <nav id="tool-nav">
-            <button class="nav-tab active" data-tab="adjust">Adjust</button>
-            <button class="nav-tab" data-tab="filters">Filters</button>
-            <button class="nav-tab" data-tab="ai-effects">AI Effects</button>
-            <button class="nav-tab" data-tab="transform">Transform</button>
-        </nav>
-
-        <!-- Main Content Area -->
-        <main class="flex-1 flex flex-col md:flex-row overflow-hidden">
+        <!-- Main Content Area (Professional Dashboard) -->
+        <main class="flex-1 flex overflow-hidden relative">
             
-            <!-- Canvas Workspace -->
-            <section id="canvas-workspace" class="flex-1 relative flex items-center justify-center p-8 overflow-hidden checkerboard-bg">
-                <div id="canvasContainer" class="relative max-w-full max-h-full flex items-center justify-center">
-                    <canvas id="imageCanvas"></canvas>
-                    
-                    <!-- Overlays & Placeholders -->
-                    <div id="dragDropOverlay" class="absolute inset-0 bg-indigo-500 bg-opacity-10 border-2 border-dashed border-indigo-400 rounded-3xl hidden flex-col items-center justify-center pointer-events-none z-30 transition-all duration-300">
-                        <p class="text-2xl font-bold text-white tracking-widest drop-shadow-xl uppercase">Drop Image</p>
+            <!-- Left Toolbar (NEW) -->
+            <aside id="left-toolbar" class="w-14 flex flex-col items-center py-4 gap-4 border-r border-white border-opacity-5 bg-black bg-opacity-20 z-40">
+                <button class="tool-btn active" data-tool="select" title="Select (V)">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15.06 15.06l5.44 5.44-1.41 1.41-5.44-5.44v5.03h-2v-8.5h8.5v2h-5.09z" fill="currentColor"></path></svg>
+                </button>
+                <button class="tool-btn" data-tool="crop" title="Crop (C)">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 3H7a4 4 0 00-4 4v10a4 4 0 004 4h10a4 4 0 004-4V7a4 4 0 00-4-4z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 1v2m6-2v2M1 9h2m-2 6h2m20-6h-2m2-6h-2M9 23v-2m6 2v-2"></path></svg>
+                </button>
+                <button class="tool-btn" data-tool="brush" title="Brush (B)">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                </button>
+                <button class="tool-btn" data-tool="mask" title="Mask (M)">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                </button>
+                <div class="h-px w-8 bg-white bg-opacity-10 my-1"></div>
+                <button class="tool-btn" data-tool="text" title="Text (T)">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path></svg>
+                </button>
+            </aside>
+
+            <!-- Center Workspace -->
+            <section id="workspace-middle" class="flex-1 flex flex-col overflow-hidden relative">
+                
+                <!-- Top Contextual Control Bar (NEW) -->
+                <div id="top-control-bar" class="h-12 border-b border-white border-opacity-5 bg-black bg-opacity-10 flex items-center px-6 gap-6 z-30">
+                    <div id="tool-context-select" class="tool-context flex items-center gap-4">
+                        <span class="text-[10px] font-bold uppercase tracking-widest text-white text-opacity-30">Select Tool</span>
+                        <div class="flex gap-2 text-[10px] font-bold">
+                            <button id="aiSelectSubject" class="px-3 py-1 bg-white bg-opacity-5 hover:bg-opacity-10 rounded border border-white border-opacity-10 text-indigo-300">Subject</button>
+                            <button id="aiSelectSky" class="px-3 py-1 bg-white bg-opacity-5 hover:bg-opacity-10 rounded border border-white border-opacity-10 opacity-40" disabled>Sky</button>
+                        </div>
                     </div>
-                    
-                    <p id="placeholderText" class="text-white text-opacity-20 text-center absolute z-0 text-xl font-medium tracking-wide">
-                        Drag an image to start editing
-                    </p>
+                    <div id="tool-context-brush" class="tool-context hidden flex items-center gap-6">
+                        <div class="flex items-center gap-3">
+                            <span class="text-[10px] font-bold uppercase tracking-widest text-white text-opacity-30">Size</span>
+                            <input type="range" class="brush-size-input w-24 h-1 accent-indigo-500" min="1" max="250" value="20">
+                            <span id="brushSizeValue" class="text-[10px] font-bold text-indigo-400 w-6">20</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-[10px] font-bold uppercase tracking-widest text-white text-opacity-30">Opacity</span>
+                            <input type="range" class="brush-opacity-input w-24 h-1 accent-indigo-500" min="0" max="1" step="0.01" value="1">
+                            <span id="brushOpacityValue" class="text-[10px] font-bold text-indigo-400 w-6">1.0</span>
+                        </div>
+                    </div>
+                    <div id="tool-context-crop" class="tool-context hidden flex items-center gap-4">
+                        <span class="text-[10px] font-bold uppercase tracking-widest text-white text-opacity-30">Crop Tool</span>
+                        <div class="flex gap-2">
+                            <button id="confirmCrop" class="px-3 py-1 bg-emerald-500 bg-opacity-80 hover:bg-opacity-100 rounded text-[10px] font-bold uppercase tracking-wider">Apply</button>
+                            <button id="cancelCrop" class="px-3 py-1 bg-white bg-opacity-5 hover:bg-opacity-10 rounded text-[10px] font-bold opacity-50">Cancel</button>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Loading Spinner -->
-                <div id="loading" class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-md hidden z-50 transition-all">
-                    <div class="text-center space-y-4">
-                        <div class="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-                        <p class="font-bold text-indigo-200" id="loadingMessage">Initializing...</p>
-                        <p id="loadingDetail" class="text-indigo-400 text-xs opacity-50">Calibrating workspace</p>
+                <!-- Canvas Workspace -->
+                <section id="canvas-workspace" class="flex-1 relative flex items-center justify-center p-8 overflow-hidden checkerboard-bg">
+                    <div id="canvasContainer" class="relative max-w-full max-h-full flex items-center justify-center">
+                        <canvas id="imageCanvas"></canvas>
+                        
+                        <!-- Interative Overlays (Crop, Select, etc.) -->
+                        <div id="interactionOverlay" class="absolute inset-0 z-20 pointer-events-none"></div>
+
+                        <!-- Drag Drop Overlay -->
+                        <div id="dragDropOverlay" class="absolute inset-0 bg-indigo-500 bg-opacity-10 border-2 border-dashed border-indigo-400 rounded-3xl hidden flex-col items-center justify-center pointer-events-none z-30 transition-all duration-300">
+                            <p class="text-2xl font-bold text-white tracking-widest drop-shadow-xl uppercase">Drop Image</p>
+                        </div>
+                        
+                        <p id="placeholderText" class="text-white text-opacity-20 text-center absolute z-0 text-xl font-medium tracking-wide">
+                            Drag an image to start editing
+                        </p>
                     </div>
-                </div>
+
+                    <!-- Loading Spinner -->
+                    <div id="loading" class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-md hidden z-50 transition-all">
+                        <div class="text-center space-y-4">
+                            <div class="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                            <p class="font-bold text-indigo-200" id="loadingMessage">Initializing...</p>
+                            <p id="loadingDetail" class="text-indigo-400 text-xs opacity-50">Calibrating workspace</p>
+                        </div>
+                    </div>
+                </section>
             </section>
 
-            <!-- Sidebar Controls -->
-            <aside id="controls-panel" class="custom-scrollbar overflow-y-auto">
+            <!-- Right Panel Stack -->
+            <aside id="right-panels" class="w-72 custom-scrollbar overflow-y-auto border-l border-white border-opacity-5 flex flex-col bg-black bg-opacity-10">
                 
-                <!-- Upload Section (Persistent) -->
-                <div class="px-6 py-4 border-b border-white border-opacity-5">
-                    <label for="imageUpload" class="block text-xs font-bold uppercase tracking-widest text-indigo-400 opacity-60 mb-3">Target Image</label>
-                    <input type="file" id="imageUpload" accept="image/*" class="w-full text-sm">
-                </div>
+                <!-- Tool Navigation (Tab Switches) -->
+                <nav id="panel-nav" class="flex border-b border-white border-opacity-5">
+                    <button class="panel-tab active" data-tab="adjust">Adjust</button>
+                    <button class="panel-tab" data-tab="layers">Layers</button>
+                    <button class="panel-tab" data-tab="ai">Intelligence</button>
+                </nav>
 
                 <!-- Adjust Panel -->
-                <div id="tab-adjust" class="tab-panel p-6 space-y-6">
+                <div id="panel-adjust" class="tab-panel p-6 space-y-6">
                     <div class="space-y-4">
                         <h4 class="text-xs font-bold uppercase tracking-widest text-white text-opacity-30">Lighting & Color</h4>
                         <div class="space-y-4">
@@ -97,95 +147,54 @@
                                 <label class="flex justify-between text-sm">Contrast <span id="contrastValue" class="font-bold text-indigo-400">100%</span></label>
                                 <input type="range" id="contrast" min="0" max="200" value="100" class="w-full">
                             </div>
-                            <div class="space-y-2">
-                                <label class="flex justify-between text-sm">Saturation <span id="saturationValue" class="font-bold text-indigo-400">100%</span></label>
-                                <input type="range" id="saturation" min="0" max="200" value="100" class="w-full">
-                            </div>
-                            <div class="space-y-2">
-                                <label class="flex justify-between text-sm">Hue Rotation <span id="hueValue" class="font-bold text-indigo-400">0°</span></label>
-                                <input type="range" id="hue" min="0" max="360" value="0" class="w-full">
-                            </div>
                         </div>
                     </div>
+                    
+                    <!-- Curves Panel (NEW) -->
                     <div class="pt-6 border-t border-white border-opacity-5 space-y-4">
-                        <h4 class="text-xs font-bold uppercase tracking-widest text-white text-opacity-30">Focus & Detail</h4>
-                        <div class="space-y-2">
-                            <label class="flex justify-between text-sm">Global Blur <span id="globalBlurValue" class="font-bold text-indigo-400">0px</span></label>
-                            <input type="range" id="globalBlur" min="0" max="20" step="0.1" value="0" class="w-full">
+                        <h4 class="text-xs font-bold uppercase tracking-widest text-white text-opacity-30">Curves Adjustment</h4>
+                        <div id="curves-container" class="aspect-square bg-black bg-opacity-50 rounded-xl relative overflow-hidden border border-white border-opacity-5">
+                            <svg id="curves-svg" class="w-full h-full cursor-crosshair">
+                                <path id="curves-grid" stroke="rgba(255,255,255,0.05)" stroke-width="1" d="M0,64 H256 M0,128 H256 M0,192 H256 M64,0 V256 M128,0 V256 M192,0 V256"></path>
+                                <path id="curves-path" stroke="var(--accent-primary)" stroke-width="2" fill="none" d="M0,256 L256,0"></path>
+                            </svg>
                         </div>
                     </div>
                 </div>
 
-                <!-- Filters Panel -->
-                <div id="tab-filters" class="tab-panel hidden p-6 space-y-8">
-                    <div class="space-y-4">
-                        <h4 class="text-xs font-bold uppercase tracking-widest text-white text-opacity-30">Artistic Presets</h4>
-                        <div id="presetsControls" class="grid grid-cols-2 gap-2">
-                            <button class="preset-btn" data-preset="original">Original</button>
-                            <button class="preset-btn" data-preset="cyberpunk">Cyber</button>
-                            <button class="preset-btn" data-preset="vintage">Retro</button>
-                            <button class="preset-btn" data-preset="lofi">Lofi</button>
-                            <button class="preset-btn" data-preset="warm">Warm</button>
-                            <button class="preset-btn" data-preset="cold">Cold</button>
-                        </div>
-                    </div>
-                    <div class="pt-6 border-t border-white border-opacity-5 space-y-4">
-                        <h4 class="text-xs font-bold uppercase tracking-widest text-white text-opacity-30">Post Processing</h4>
-                        <div class="grid grid-cols-2 gap-2">
-                            <button id="grayscaleButton">B&W</button>
-                            <button id="invertButton">Invert</button>
-                            <button id="sepiaButton">Sepia</button>
-                            <button id="glowButton">Glow</button>
-                        </div>
-                        <div class="space-y-2 pt-2">
-                            <label class="flex justify-between text-sm">Final Opacity <span id="opacityValue" class="font-bold text-indigo-400">100%</span></label>
-                            <input type="range" id="opacity" min="0" max="100" value="100" class="w-full">
+                <!-- Layers Panel (NEW) -->
+                <div id="panel-layers" class="tab-panel hidden p-6 space-y-4">
+                    <h4 class="text-xs font-bold uppercase tracking-widest text-white text-opacity-30">Layers Stack</h4>
+                    <div id="layers-stack" class="space-y-2">
+                        <!-- Example Layer -->
+                        <div class="flex items-center gap-3 p-3 bg-white bg-opacity-5 rounded-xl border border-white border-opacity-5 group">
+                            <div class="w-10 h-10 bg-black rounded-lg border border-white border-opacity-10 overflow-hidden">
+                                <img src="" id="baseLayerThumbnail" class="w-full h-full object-cover">
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-xs font-bold text-white">Base Image</p>
+                                <p class="text-[10px] text-white text-opacity-40">Original Background</p>
+                            </div>
+                            <button class="p-1 opacity-20 group-hover:opacity-100 transition-opacity">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                            </button>
                         </div>
                     </div>
                 </div>
 
                 <!-- AI Panel -->
-                <div id="tab-ai-effects" class="tab-panel hidden p-6 space-y-8">
-                    <div class="space-y-4">
-                        <h4 class="text-xs font-bold uppercase tracking-widest text-white text-opacity-30">Advanced AI</h4>
-                        <div class="space-y-4">
-                            <label class="flex items-center gap-3 cursor-pointer group">
-                                <input type="checkbox" id="removeBackgroundCheckbox" class="form-checkbox">
-                                <span class="text-sm group-hover:text-indigo-300">Intelligent Segmentation</span>
-                            </label>
-                            <div class="pt-4 border-t border-white border-opacity-5 space-y-3">
-                                <label class="flex items-center gap-3 cursor-pointer group">
-                                    <input type="radio" name="grayscaleMode" value="none" checked>
-                                    <span class="text-sm">Standard Colors</span>
-                                </label>
-                                <label class="flex items-center gap-3 cursor-pointer group">
-                                    <input type="radio" name="grayscaleMode" value="bg_grayscale">
-                                    <span class="text-sm">Color Splash</span>
-                                </label>
-                                <label class="flex items-center gap-3 cursor-pointer group">
-                                    <input type="radio" name="grayscaleMode" value="subject_grayscale">
-                                    <span class="text-sm">Isolated Focus</span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Transform Panel -->
-                <div id="tab-transform" class="tab-panel hidden p-6 space-y-6">
-                    <div class="space-y-4">
-                        <h4 class="text-xs font-bold uppercase tracking-widest text-white text-opacity-30">Orientation</h4>
-                        <div class="grid grid-cols-2 gap-2">
-                            <button id="flipHorizontalButton" title="Flip Horizontal">Flip H</button>
-                            <button id="flipVerticalButton" title="Flip Vertical">Flip V</button>
-                            <button id="rotate90Button">Rotate 90</button>
-                            <button id="cropSquareButton">1:1 Crop</button>
-                        </div>
+                <div id="panel-ai" class="tab-panel hidden p-6 space-y-6">
+                    <h4 class="text-xs font-bold uppercase tracking-widest text-white text-opacity-30">Intelligent Tools</h4>
+                    <div class="space-y-4 text-xs">
+                        <button class="w-full p-4 bg-indigo-500 bg-opacity-10 border border-indigo-500 border-opacity-20 rounded-2xl hover:bg-opacity-20 transition-all text-left group">
+                            <p class="font-bold text-indigo-300 group-hover:text-indigo-200">Remove Background</p>
+                            <p class="opacity-50">One-click subject isolation</p>
+                        </button>
                     </div>
                 </div>
 
                 <div class="mt-auto p-6 border-t border-white border-opacity-5 flex justify-between items-center bg-black bg-opacity-10">
-                    <button id="resetButton" class="text-xs font-bold uppercase tracking-widest hover:text-red-400 transition-colors">Reset Layout</button>
+                    <button id="resetButton" class="text-xs font-bold uppercase tracking-widest hover:text-red-400 transition-colors">Reset</button>
                     <div class="flex gap-1">
                         <button id="darkModeToggle" class="p-2 hover:bg-white hover:bg-opacity-5 rounded-lg transition-all">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
@@ -196,6 +205,7 @@
                     </div>
                 </div>
             </aside>
+        </main>
         </main>
 
         <div id="infoModal" class="fixed inset-0 bg-black bg-opacity-80 backdrop-blur-sm hidden z-[100] flex items-center justify-center p-6 transition-all">
@@ -210,6 +220,17 @@
                         Nebula is a professional-grade, privacy-first web image editor. Experience high-end creative tools powered by 100% client-side AI.
                     </p>
                     
+                    <!-- Visual Showcase Section -->
+                    <div class="pt-2">
+                        <h4 class="text-[10px] font-bold uppercase tracking-widest text-indigo-400 mb-2">Visual Showcase</h4>
+                        <div class="rounded-2xl overflow-hidden border border-white border-opacity-10 bg-black aspect-video flex items-center justify-center relative group">
+                            <img src="src/assets/showcase.png" alt="Nebula Showcase" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity">
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span class="px-3 py-1 bg-indigo-500 bg-opacity-80 rounded-full text-[8px] font-bold uppercase tracking-wider">Premium Overhaul v2.0</span>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="grid grid-cols-1 gap-3">
                         <div class="flex gap-3">
                             <span class="text-indigo-400 text-lg">✦</span>

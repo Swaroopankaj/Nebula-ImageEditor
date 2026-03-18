@@ -37,7 +37,7 @@ export const PRESETS = {
         hue: 300,
         globalBlur: 0
     },
-     vintage: {
+    vintage: {
         brightness: 90,
         contrast: 90,
         saturation: 50,

@@ -582,7 +582,85 @@ body.light #closeInfoModal:hover {
 }
 
 .nav-tab.active {
+    background: rgba(139, 92, 246, 0.1);
+    color: var(--accent-primary);
+    border-bottom: 2px solid var(--accent-primary);
     animation: pulse-accent 2s infinite;
+}
+
+/* Dashboard Layout */
+#left-toolbar {
+    height: 100%;
+}
+
+.tool-btn {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    color: rgba(255,255,255,0.4);
+    transition: all 0.2s ease;
+}
+
+.tool-btn:hover {
+    background: rgba(255,255,255,0.05);
+    color: rgba(255,255,255,0.8);
+}
+
+.tool-btn.active {
+    background: var(--accent-primary);
+    color: white;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+}
+
+#top-control-bar {
+    backdrop-filter: blur(10px);
+}
+
+/* Panel Tabs */
+#panel-nav {
+    display: flex;
+    width: 100%;
+}
+
+.panel-tab {
+    flex: 1;
+    padding: 12px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.3);
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.panel-tab.active {
+    color: var(--accent-primary);
+    border-bottom-color: var(--accent-primary);
+    background: rgba(139, 92, 246, 0.05);
+}
+
+/* Curves Widget */
+#curves-container svg {
+    display: block;
+}
+
+#curves-path {
+    filter: drop-shadow(0 0 4px var(--accent-primary));
+}
+
+.curves-point {
+    fill: white;
+    stroke: var(--accent-primary);
+    stroke-width: 2px;
+    cursor: grab;
+}
+
+.curves-point:active {
+    cursor: grabbing;
 }
 
 /* Custom Scrollbar Polish */
