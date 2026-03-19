@@ -18,8 +18,7 @@
     <!-- Main Style -->
     <link rel="stylesheet" href="src/css/main.css">
 </head>
-<body class="bg-red-600 text-white overflow-hidden flex items-center justify-center p-4">
-    <script>alert('ROOT INDEX.HTML IS RUNNING!');</script>
+<body class="bg-gradient-to-br from-[#0f172a] to-[#1e293b] text-white overflow-hidden flex items-center justify-center p-4">
 
     <div id="app-container">
         <!-- Header Section -->
@@ -124,6 +123,7 @@
                             <div class="flex gap-4">
                                 <button id="loadSampleButton" class="px-6 py-2 bg-indigo-500 bg-opacity-20 hover:bg-opacity-30 border border-indigo-500 border-opacity-30 rounded-xl text-indigo-300 text-xs font-bold uppercase tracking-widest transition-all">Load Sample</button>
                                 <label for="imageUpload" class="px-6 py-2 bg-white bg-opacity-5 hover:bg-opacity-10 border border-white border-opacity-10 rounded-xl text-white text-opacity-40 text-xs font-bold uppercase tracking-widest transition-all cursor-pointer">Browse Files</label>
+                                <input type="file" id="imageUpload" class="hidden" accept="image/*">
                             </div>
                         </div>
                     </div>

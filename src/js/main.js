@@ -40,7 +40,6 @@ export async function processNewImage(src) {
     const orig = getOriginalImage();
     const curr = getCurrentImage();
 
-    alert('processNewImage starting for: ' + src.substring(0, 30));
     console.log('processNewImage started with src:', src ? src.substring(0, 50) + '...' : 'null');
     if (el.loadingDiv) {
         el.loadingDiv.classList.remove('hidden');

@@ -86,3 +86,7 @@ export function resetSettings() {
     editorSettings.flipH = false;
     editorSettings.flipV = false;
 }
+
+export async function updateSettings(newSettings) {
+    Object.assign(editorSettings, newSettings);
+}

@@ -2,13 +2,13 @@ import { brushTool } from './tools/brush.js';
 import { cropTool } from './tools/crop.js';
 import { marqueeTool } from './tools/select_marquee.js';
 import { redraw, processNewImage, handleReset, handleDownload, applyPreset } from './main.js';
-import { editorSettings, updateSettings, applyTheme } from './settings.js';
+import { editorSettings, updateSettings } from './settings.js';
+import { applyTheme } from './utils.js';
 import { initCanvas } from './canvas.js';
 
 let currentTool = 'select';
 
 export function initHandlers() {
-    alert('Nebula UI Handlers Initializing...');
     console.log('initHandlers called');
     initCanvas();
     const mainCanvas = document.getElementById('imageCanvas');
