@@ -39,36 +39,64 @@ export function initHandlers() {
     
     // Canvas Interaction (Tools)
     if (mainCanvas) {
-        mainCanvas.addEventListener('mousedown', (e) => {
-            if (currentTool === 'brush') {
-                brushTool.start(e, mainCanvas);
-            } else if (currentTool === 'crop') {
-                cropTool.start(e, mainCanvas);
-            } else if (currentTool === 'marquee') {
-                marqueeTool.start(e, mainCanvas);
-            }
-        });
+        const getCoord = (e) => {
+            const rect = mainCanvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return {
+                x: (clientX - rect.left) * (mainCanvas.width / rect.width),
+                y: (clientY - rect.top) * (mainCanvas.height / rect.height)
+            };
+        };
 
-        window.addEventListener('mousemove', (e) => {
-            if (currentTool === 'brush') {
-                brushTool.draw(e, mainCanvas);
-            } else if (currentTool === 'crop') {
-                cropTool.move(e, mainCanvas);
-            } else if (currentTool === 'marquee') {
-                marqueeTool.move(e, mainCanvas);
-            }
-        });
+        const handleStart = (e) => {
+            if (e.type === 'touchstart') e.preventDefault();
+            if (currentTool === 'brush') brushTool.start(e, mainCanvas);
+            else if (currentTool === 'crop') cropTool.start(e, mainCanvas);
+            else if (currentTool === 'marquee') marqueeTool.start(e, mainCanvas);
+        };
 
-        window.addEventListener('mouseup', () => {
-            if (currentTool === 'brush') {
-                brushTool.stop();
-            } else if (currentTool === 'crop') {
-                cropTool.stop();
-            } else if (currentTool === 'marquee') {
-                marqueeTool.stop();
-            }
-        });
+        const handleMove = (e) => {
+            if (e.type === 'touchmove') e.preventDefault();
+            if (currentTool === 'brush') brushTool.draw(e, mainCanvas);
+            else if (currentTool === 'crop') cropTool.move(e, mainCanvas);
+            else if (currentTool === 'marquee') marqueeTool.move(e, mainCanvas);
+        };
+
+        const handleStop = () => {
+            if (currentTool === 'brush') brushTool.stop();
+            else if (currentTool === 'crop') cropTool.stop();
+            else if (currentTool === 'marquee') marqueeTool.stop();
+        };
+
+        mainCanvas.addEventListener('mousedown', handleStart);
+        mainCanvas.addEventListener('touchstart', handleStart, { passive: false });
+
+        window.addEventListener('mousemove', handleMove);
+        window.addEventListener('touchmove', handleMove, { passive: false });
+
+        window.addEventListener('mouseup', handleStop);
+        window.addEventListener('touchend', handleStop);
     }
+
+    // Mobile Panel Toggle
+    document.getElementById('mobileToggle')?.addEventListener('click', () => {
+        const left = document.getElementById('left-toolbar');
+        const right = document.getElementById('right-panels');
+        const isHidden = left.classList.contains('hidden');
+        
+        if (isHidden) {
+            left.classList.remove('hidden');
+            left.classList.add('flex', 'fixed', 'top-16', 'left-0', 'h-[calc(100%-4rem)]', 'shadow-2xl');
+            right.classList.remove('hidden');
+            right.classList.add('flex', 'fixed', 'top-16', 'right-0', 'h-[calc(100%-4rem)]', 'shadow-2xl');
+        } else {
+            left.classList.add('hidden');
+            left.classList.remove('fixed', 'flex');
+            right.classList.add('hidden');
+            right.classList.remove('fixed', 'flex');
+        }
+    });
 
     // Top Bar Actions
     document.getElementById('confirmCrop')?.addEventListener('click', () => cropTool.apply());

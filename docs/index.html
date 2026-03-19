@@ -33,6 +33,9 @@
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 10h-10a8 8 0 00-8 8v2m18-10l-6 6m6-6l-6-6"></path></svg>
                     </button>
                 </div>
+                <button id="mobileToggle" class="md:hidden p-2.5 bg-white bg-opacity-5 rounded-xl hover:bg-opacity-10 transition-all">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                </button>
                 <button id="downloadButton" class="px-6 py-2.5 rounded-xl font-bold transition-all">
                     Export
                 </button>
@@ -40,10 +43,10 @@
         </header>
 
         <!-- Main Content Area (Professional Dashboard) -->
-        <main class="flex-1 flex overflow-hidden relative">
+        <main class="flex-1 flex flex-col md:flex-row overflow-hidden relative">
             
             <!-- Left Toolbar (Professional Edition) -->
-            <aside id="left-toolbar" class="w-14 flex flex-col items-center py-4 gap-4 border-r border-white border-opacity-5 bg-black bg-opacity-20 z-40">
+            <aside id="left-toolbar" class="hidden md:flex w-full md:w-14 flex-row md:flex-col items-center py-4 gap-4 border-r border-white border-opacity-5 bg-black bg-opacity-20 z-40">
                 <button class="tool-btn active" data-tool="select" title="Move Tool (V)">
                     <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 9 14-5-5 14-3-6-6-3Z"/><path d="m11 11 6 6"/></svg>
                 </button>
@@ -69,7 +72,7 @@
             <section id="workspace-middle" class="flex-1 flex flex-col overflow-hidden relative">
                 
                 <!-- Top Contextual Control Bar (NEW) -->
-                <div id="top-control-bar" class="h-12 border-b border-white border-opacity-5 bg-black bg-opacity-10 flex items-center px-6 gap-6 z-30">
+                <div id="top-control-bar" class="h-auto md:h-12 border-b border-white border-opacity-5 bg-black bg-opacity-10 flex flex-wrap items-center px-4 md:px-6 py-2 md:py-0 gap-4 md:gap-6 z-30">
                     <div id="tool-context-select" class="tool-context flex items-center gap-4">
                         <span class="text-[10px] font-bold uppercase tracking-widest text-white text-opacity-30">Select Tool</span>
                         <div class="flex gap-2 text-[10px] font-bold">
@@ -140,7 +143,7 @@
             </section>
 
             <!-- Right Panel Stack -->
-            <aside id="right-panels" class="w-72 custom-scrollbar overflow-y-auto border-l border-white border-opacity-5 flex flex-col bg-black bg-opacity-10">
+            <aside id="right-panels" class="hidden md:flex w-full md:w-72 custom-scrollbar overflow-y-auto border-l border-white border-opacity-5 flex-col bg-black bg-opacity-10">
                 
                 <!-- Tool Navigation (Tab Switches) -->
                 <nav id="panel-nav" class="flex border-b border-white border-opacity-5">

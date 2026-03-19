@@ -18,8 +18,10 @@ export class CropTool {
     start(e, canvas) {
         this.isSelecting = true;
         const rect = canvas.getBoundingClientRect();
-        this.startX = (e.clientX - rect.left) * (canvas.width / rect.width);
-        this.startY = (e.clientY - rect.top) * (canvas.height / rect.height);
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        this.startX = (clientX - rect.left) * (canvas.width / rect.width);
+        this.startY = (clientY - rect.top) * (canvas.height / rect.height);
         
         this.endX = this.startX;
         this.endY = this.startY;
@@ -34,8 +36,10 @@ export class CropTool {
         if (!this.isSelecting) return;
 
         const rect = canvas.getBoundingClientRect();
-        this.endX = (e.clientX - rect.left) * (canvas.width / rect.width);
-        this.endY = (e.clientY - rect.top) * (canvas.height / rect.height);
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        this.endX = (clientX - rect.left) * (canvas.width / rect.width);
+        this.endY = (clientY - rect.top) * (canvas.height / rect.height);
         
         this.updateOverlay(canvas);
     }

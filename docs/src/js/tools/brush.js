@@ -32,8 +32,10 @@ export class BrushTool {
         if (!this.ctx) return;
 
         const rect = canvas.getBoundingClientRect();
-        this.lastX = e.clientX - rect.left;
-        this.lastY = e.clientY - rect.top;
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        this.lastX = clientX - rect.left;
+        this.lastY = clientY - rect.top;
         
         // Scale coordinates to canvas resolution
         this.lastX *= (canvas.width / rect.width);
@@ -47,8 +49,10 @@ export class BrushTool {
         if (!this.isDrawing || !this.ctx) return;
 
         const rect = canvas.getBoundingClientRect();
-        const x = (e.clientX - rect.left) * (canvas.width / rect.width);
-        const y = (e.clientY - rect.top) * (canvas.height / rect.height);
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        const x = (clientX - rect.left) * (canvas.width / rect.width);
+        const y = (clientY - rect.top) * (canvas.height / rect.height);
 
         this.ctx.beginPath();
         this.ctx.moveTo(this.lastX, this.lastY);
